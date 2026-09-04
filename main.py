@@ -1,3 +1,5 @@
+from typing import NoReturn
+
 import serial
 
 SERIAL_PORT = "/dev/ttyUSB0"  # Change to COM3 on Windows, for example
@@ -19,7 +21,7 @@ def handle_unknown(message: str):
     print(f"Unknown message: {message}")
 
 
-def main():
+def main() -> NoReturn:
     with serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1) as ser:
         print(f"Listening on {SERIAL_PORT} at {BAUD_RATE} baud...")
 
