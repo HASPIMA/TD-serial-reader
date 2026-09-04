@@ -20,7 +20,19 @@ def handle_unknown(message: str):
 
 
 def main():
-    print("Hello from serial-reader!")
+    with serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1) as ser:
+        print(f"Listening on {SERIAL_PORT} at {BAUD_RATE} baud...")
+
+        while True:
+            # readline() waits until it receives '\n'
+            raw = ser.readline()
+
+            if not raw:
+                continue
+
+            message = raw.decode("utf-8", errors="replace").strip()
+
+            print(f"{message=}")
 
 
 if __name__ == "__main__":
