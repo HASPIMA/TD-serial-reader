@@ -38,11 +38,11 @@ def main(
             message = raw.decode("utf-8", errors="replace").strip()
 
             if message.startswith(TAG_TASK_A):
-                content = message[len(TAG_TASK_A):].strip()
+                content = message[len(TAG_TASK_A) :].strip()
                 handle_task_a(content)
 
             elif message.startswith(TAG_TASK_B):
-                content = message[len(TAG_TASK_B):].strip()
+                content = message[len(TAG_TASK_B) :].strip()
                 handle_task_b(content)
 
             else:
