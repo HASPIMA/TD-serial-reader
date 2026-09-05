@@ -2,11 +2,7 @@ from typing import NoReturn
 
 import serial
 
-SERIAL_PORT = "/dev/ttyUSB0"  # Change to COM3 on Windows, for example
-BAUD_RATE = 115200
-
-TAG_TASK_A = "[Task A]"
-TAG_TASK_B = "[Task B]"
+from constants import DeviceConfig, MessageTags
 
 
 def handle_task_a(message: str):
@@ -37,12 +33,12 @@ def main(
 
             message = raw.decode("utf-8", errors="replace").strip()
 
-            if message.startswith(TAG_TASK_A):
-                content = message[len(TAG_TASK_A) :].strip()
+            if message.startswith(MessageTags.TASK_A):
+                content = message[len(MessageTags.TASK_A) :].strip()
                 handle_task_a(content)
 
-            elif message.startswith(TAG_TASK_B):
-                content = message[len(TAG_TASK_B) :].strip()
+            elif message.startswith(MessageTags.TASK_B):
+                content = message[len(MessageTags.TASK_B) :].strip()
                 handle_task_b(content)
 
             else:
@@ -61,7 +57,7 @@ if __name__ == "__main__":
         "--port",
         "-p",
         type=str,
-        default=SERIAL_PORT,
+        default=DeviceConfig.SERIAL_PORT,
         help="Serial port to read from (e.g: /dev/ttyUSB0)",
     )
 
@@ -69,7 +65,7 @@ if __name__ == "__main__":
         "--baud-rate",
         "-b",
         type=int,
-        default=BAUD_RATE,
+        default=DeviceConfig.BAUD_RATE,
         help="Baud rate (e.g: 115200)",
     )
 
