@@ -21,6 +21,23 @@ def entrypoint(
     port: str,
     baud_rate: int,
 ) -> NoReturn:
+    """
+    Read and dispatch newline-terminated serial messages.
+
+    The function opens the configured serial port, waits for incoming lines,
+    decodes them as UTF-8 with replacement for invalid bytes, and routes each
+    message to the task handler that matches its prefix.
+
+    Messages starting with `MessageTags.TASK_A` are forwarded to
+    `handle_task_a` after removing the tag, messages starting with
+    `MessageTags.TASK_B` are forwarded to `handle_task_b`, and all other
+    messages are sent to `handle_unknown`.
+
+    Args:
+        port: Serial device path to read from, such as /dev/ttyUSB0.
+        baud_rate: Serial communication speed in bits per second.
+
+    """
     with serial.Serial(port, baud_rate, timeout=1) as ser:
         print(f"Listening on {port} at {baud_rate} baud...")
 
