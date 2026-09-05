@@ -50,4 +50,32 @@ def main(
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        "serial-reader",
+        description="Reader of tasks by serial",
+    )
+
+    parser.add_argument(
+        "--port",
+        "-p",
+        type=str,
+        default=SERIAL_PORT,
+        help="Serial port to read from (e.g: /dev/ttyUSB0)",
+    )
+
+    parser.add_argument(
+        "--baud-rate",
+        "-b",
+        type=int,
+        default=BAUD_RATE,
+        help="Baud rate (e.g: 115200)",
+    )
+
+    args = parser.parse_args()
+
+    main(
+        port=args.port,
+        baud_rate=args.baud_rate,
+    )
