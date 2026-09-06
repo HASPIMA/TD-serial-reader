@@ -1,24 +1,58 @@
-name: Compile binaries in different platforms and add them to the release
-on: [release]
+name: Compile binaries for release
+
+on:
+  release:
+    types: [published]
+
 jobs:
   compile:
-    runs-on: [ubuntu-latest, windows-latest]
-    steps:
-      - uses: actions/checkout@v7
+    name: Build ${{ matrix.os }} binary
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
 
-      - name: "Set up Python"
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            binary_name: task-serial-reader-linux
+          - os: windows-latest
+            binary_name: task-serial-reader-windows.exe
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
         uses: actions/setup-python@v7.0.0
         with:
-          python-version-file: ".python-version"
+          python-version-file: .python-version
 
       - name: Install uv
         uses: astral-sh/setup-uv@v10.0.1
 
-      - name: Install the project
+      - name: Install project dependencies
         run: uv sync --locked --all-extras --dev
 
-      - name: Install pyinstaller
-        run: uv add pyinstaller
+      - name: Compile application into a single binary
+        shell: bash
+        run: |
+          uv run --with pyinstaller pyinstaller --clean --onefile --name "Task Serial Reader" main.py
 
-      - name: Compile package into a single file
-        run: uv run pyinstaller -F --clean -n "Task Serial Reader" main.py
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            mv "dist/Task Serial Reader.exe" "${{ matrix.binary_name }}"
+          else
+            mv "dist/Task Serial Reader" "${{ matrix.binary_name }}"
+          fi
+
+      - name: Upload binary as workflow artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.binary_name }}
+          path: ${{ matrix.binary_name }}
+
+      - name: Upload binary to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.binary_name }}
