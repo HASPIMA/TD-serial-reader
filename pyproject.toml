@@ -1,13 +1,16 @@
 [project]
 name = "serial-reader"
-version = "2.0.1"
+version = "2.0.2"
 description = "A small Python application for reading serial data from a device, identifying task messages by prefix, and dispatching them to either a CLI handler or a GUI dashboard."
 readme = "README.md"
 requires-python = ">=3.13"
 authors = [
     { name = "Harrison Pinto", email = "hpintom@unal.edu.co" }
 ]
-dependencies = ["pyserial>=3.5", "pyside6>=6.11.2"]
+dependencies = [
+    "pyserial>=3.5",
+    "pyside6>=6.11.2",
+]
 
 [tool.ruff.lint]
 extend-select = [
