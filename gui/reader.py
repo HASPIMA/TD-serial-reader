@@ -1,24 +1,25 @@
-from typing import Final
-
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore
 
 
-class TasksReaderInterface(QtWidgets.QWidget):
+class SerialReaderThread(QtCore.QThread):
+    new_task_a = QtCore.Signal(str)
+    new_task_b = QtCore.Signal(str)
+    new_unknown = QtCore.Signal(str)
+    status = QtCore.Signal(str)
+
     def __init__(
         self,
-        *,
-        default_port: str,
-        default_baud_rate: int,
+        port: str,
+        baud_rate: int,
+        parent: QtCore.QObject | None = None,
     ) -> None:
-        super().__init__()
+        super().__init__(parent)
+        self.port = port
+        self.baud_rate = baud_rate
+        self._running = True
 
-        self.default_dev_port: Final[str] = default_port
-        self.default_baud_rate: Final[int] = default_baud_rate
+    def run(self) -> None:
+        raise NotImplementedError
 
-        self.serial_port_text = QtWidgets.QLabel(
-            f"Listening to serial port: {self.default_dev_port}",
-            alignment=QtCore.Qt.AlignmentFlag.AlignCenter,
-        )
-
-        self.layout: QtWidgets.QVBoxLayout = QtWidgets.QVBoxLayout(self)
-        self.layout.addWidget(self.serial_port_text)
+    def stop(self) -> None:
+        raise NotImplementedError

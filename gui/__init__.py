@@ -3,7 +3,7 @@ from typing import NoReturn
 
 from PySide6 import QtWidgets
 
-from .reader import TasksReaderInterface
+from .interface import TasksReaderInterface
 
 
 def entrypoint(
