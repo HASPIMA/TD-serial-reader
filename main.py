@@ -44,5 +44,5 @@ if __name__ == "__main__":
     elif args.mode == ApplicationMode.GUI:
         entrypoint_gui(
             default_port=args.port,
-            deafult_baud_rate=args.baud_rate,
+            default_baud_rate=args.baud_rate,
         )

@@ -3,16 +3,19 @@ from typing import NoReturn
 
 from PySide6 import QtWidgets
 
-from .hello_world import MyWidget
+from .reader import TasksReaderInterface
 
 
 def entrypoint(
-    default_port: str,  # noqa: ARG001
-    deafult_baud_rate: int,  # noqa: ARG001
+    default_port: str,
+    default_baud_rate: int,
 ) -> NoReturn:
     app = QtWidgets.QApplication([])
 
-    widget = MyWidget()
+    widget = TasksReaderInterface(
+        default_port=default_port,
+        default_baud_rate=default_baud_rate,
+    )
     widget.resize(800, 600)
     widget.show()
 
