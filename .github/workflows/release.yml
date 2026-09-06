@@ -36,23 +36,9 @@ jobs:
         run: uv sync --locked --all-extras --dev
 
       - name: Compile application into a single binary
-        shell: bash
-        run: |
-          uv run --with pyinstaller pyinstaller --clean --onefile --name "Task Serial Reader" main.py
-
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            mv "dist/Task Serial Reader.exe" "${{ matrix.binary_name }}"
-          else
-            mv "dist/Task Serial Reader" "${{ matrix.binary_name }}"
-          fi
-
-      - name: Upload binary as workflow artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: ${{ matrix.binary_name }}
-          path: ${{ matrix.binary_name }}
+        run: uv run --with pyinstaller pyinstaller --clean --onefile --name ${{ matrix.binary_name }} main.py
 
       - name: Upload binary to GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ matrix.binary_name }}
+          files: dist/${{ matrix.binary_name }}
