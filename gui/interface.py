@@ -1,3 +1,4 @@
+import logging
 from typing import Final
 
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -108,5 +109,7 @@ class TasksReaderInterface(QtWidgets.QWidget):
                 self.reader_thread.stop()
                 self.reader_thread.wait(2_000)
         except Exception:
-            pass
+            logging.getLogger(__name__).exception(
+                "Failed to stop serial reader thread cleanly",
+            )
         super().closeEvent(event)
