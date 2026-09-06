@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import StrEnum, auto, unique
 
 
 @dataclass(frozen=True)
@@ -13,3 +14,9 @@ class DeviceConfig:
 class MessageTags:
     TASK_A: str = "[Task A]"
     TASK_B: str = "[Task B]"
+
+
+@unique
+class ApplicationMode(StrEnum):
+    GUI = auto()
+    CLI = auto()
