@@ -102,6 +102,11 @@ class TasksReaderInterface(QtWidgets.QWidget):
         self.unknown_list.scrollToBottom()
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:  # noqa: N802
-        # TODO: stop reader thread cleanly
-
+        # stop reader thread cleanly
+        try:
+            if hasattr(self, "reader_thread") and self.reader_thread.isRunning():
+                self.reader_thread.stop()
+                self.reader_thread.wait(2_000)
+        except Exception:
+            pass
         super().closeEvent(event)
