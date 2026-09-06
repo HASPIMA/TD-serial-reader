@@ -20,3 +20,10 @@ class MessageTags:
 class ApplicationMode(StrEnum):
     GUI = auto()
     CLI = auto()
+
+
+@unique
+class ConnectionState(StrEnum):
+    DISCONNECTED = auto()
+    CONNECTING = auto()
+    CONNECTED = auto()
