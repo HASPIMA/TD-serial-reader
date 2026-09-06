@@ -87,3 +87,8 @@ ignore = [
     "TRY003",  # Tryceratops - Checks for long exception messages that are not defined in the exception class itself.
     "EM101",   # Flake8-errmsg - Checks for the use of string literals in exception constructors.
 ]
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.22.2",
+]
