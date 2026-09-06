@@ -1,13 +1,16 @@
 [project]
 name = "serial-reader"
-version = "2.0.1"
+version = "2.0.2"
 description = "A small Python application for reading serial data from a device, identifying task messages by prefix, and dispatching them to either a CLI handler or a GUI dashboard."
 readme = "README.md"
 requires-python = ">=3.13"
 authors = [
     { name = "Harrison Pinto", email = "hpintom@unal.edu.co" }
 ]
-dependencies = ["pyserial>=3.5", "pyside6>=6.11.2"]
+dependencies = [
+    "pyserial>=3.5",
+    "pyside6>=6.11.2",
+]
 
 [tool.ruff.lint]
 extend-select = [
@@ -83,4 +86,9 @@ ignore = [
     "FA102",   # Flake8-future-annotations - Missing `from __future__ import annotations`, but uses PEP 604 union
     "TRY003",  # Tryceratops - Checks for long exception messages that are not defined in the exception class itself.
     "EM101",   # Flake8-errmsg - Checks for the use of string literals in exception constructors.
+]
+
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.22.2",
 ]

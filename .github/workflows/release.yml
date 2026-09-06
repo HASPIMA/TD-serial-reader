@@ -1,0 +1,44 @@
+name: Compile binaries for release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  compile:
+    name: Build ${{ matrix.os }} binary
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            binary_name: task-serial-reader-linux
+          - os: windows-latest
+            binary_name: task-serial-reader-windows.exe
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version-file: .python-version
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.0.1
+
+      - name: Install project dependencies
+        run: uv sync --locked --all-extras --dev
+
+      - name: Compile application into a single binary
+        run: uv run pyinstaller --clean --onefile --name ${{ matrix.binary_name }} main.py
+
+      - name: Upload binary to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ matrix.binary_name }}
