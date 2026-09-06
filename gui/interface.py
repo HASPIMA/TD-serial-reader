@@ -7,6 +7,9 @@ from gui.reader import SerialReaderThread
 
 
 class TasksReaderInterface(QtWidgets.QWidget):
+    dev_port: str
+    baud_rate: int
+
     def __init__(
         self,
         *,
@@ -17,6 +20,9 @@ class TasksReaderInterface(QtWidgets.QWidget):
 
         self.default_dev_port: Final[str] = default_port
         self.default_baud_rate: Final[int] = default_baud_rate
+
+        self.dev_port = self.default_dev_port
+        self.baud_rate = self.default_baud_rate
 
         # Top status area
         self.port_label = QtWidgets.QLabel(alignment=QtCore.Qt.AlignmentFlag.AlignLeft)
@@ -56,14 +62,14 @@ class TasksReaderInterface(QtWidgets.QWidget):
 
         # Set initial labels
         self._update_status_labels(
-            f"Port: {self.default_dev_port}",
-            f"Baud: {self.default_baud_rate}",
+            f"Port: {self.dev_port}",
+            f"Baud: {self.baud_rate}",
         )
 
         # Start serial reader thread
         self.reader_thread = SerialReaderThread(
-            self.default_dev_port,
-            self.default_baud_rate,
+            self.dev_port,
+            self.baud_rate,
             self,
         )
         self.reader_thread.new_task_a.connect(self._on_new_task_a)
@@ -95,8 +101,8 @@ class TasksReaderInterface(QtWidgets.QWidget):
     def _on_status(self, text: str) -> None:
         # update baud/port label with latest status message
         self._update_status_labels(
-            f"Port: {self.default_dev_port}",
-            f"Baud: {self.default_baud_rate}",
+            f"Port: {self.dev_port}",
+            f"Baud: {self.baud_rate}",
         )
         # also add to unknown list as a visible status log
         self.unknown_list.addItem(f"[STATUS] {text}")
