@@ -45,7 +45,7 @@ class SerialReaderThread(QtCore.QThread):
                     else:
                         self.new_unknown.emit(message)
 
-        except Exception as exc:  # keep broad to surface serial errors to GUI
+        except serial.SerialException as exc:
             self.status.emit(f"Serial error: {exc}")
 
     def stop(self) -> None:
@@ -55,5 +55,5 @@ class SerialReaderThread(QtCore.QThread):
             # attempt to open & close to unblock readline if needed
             with serial.Serial(self.port, self.baud_rate, timeout=0.1):
                 pass
-        except Exception:
-            pass
+        except serial.SerialException as exc:
+            self.status.emit(f"Serial error: {exc}")
