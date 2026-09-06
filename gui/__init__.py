@@ -16,6 +16,7 @@ def entrypoint(
         default_port=default_port,
         default_baud_rate=default_baud_rate,
     )
+    widget.setWindowTitle("Task Serial Reader")
     widget.resize(800, 600)
     widget.show()
 
