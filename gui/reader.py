@@ -50,10 +50,3 @@ class SerialReaderThread(QtCore.QThread):
 
     def stop(self) -> None:
         self._running = False
-        # ensure thread unblocks promptly
-        try:
-            # attempt to open & close to unblock readline if needed
-            with serial.Serial(self.port, self.baud_rate, timeout=0.1):
-                pass
-        except serial.SerialException as exc:
-            self.status.emit(f"Serial error: {exc}")

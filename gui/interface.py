@@ -1,4 +1,5 @@
 import logging
+from collections.abc import Callable
 from typing import Final
 
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -197,11 +198,62 @@ class TasksReaderInterface(QtWidgets.QWidget):
         self.reader_thread.new_task_b.connect(self._on_new_task_b)
         self.reader_thread.new_unknown.connect(self._on_new_unknown)
         self.reader_thread.status.connect(self._on_status)
+        self.reader_thread.finished.connect(self._on_reader_finished)
         self.reader_thread.start()
 
-    def _update_status_labels(self, port_text: str, baud_text: str) -> None:
-        self.port_label.setText(port_text)
-        self.baud_label.setText(baud_text)
+    def _stop_reader_thread(self) -> None:
+        if self.reader_thread is None:
+            return
+
+        if self.reader_thread.isRunning():
+            self.reader_thread.stop()
+            self.reader_thread.wait(2_000)
+
+        self.reader_thread = None
+
+    def _on_connect_button_clicked(self) -> None:
+        if self.connection_state in {
+            ConnectionState.CONNECTED,
+            ConnectionState.CONNECTING,
+        }:
+            self._disconnect_device()
+            return
+
+        self._connect_device()
+
+    def _connect_device(self) -> None:
+        settings = self._read_connection_settings()
+        if settings is None:
+            return
+
+        self.dev_port, self.baud_rate = settings
+        self._update_settings_summary()
+        self._set_connection_state(
+            ConnectionState.CONNECTING,
+            f"Connecting to {self.dev_port} @ {self.baud_rate}...",
+        )
+        self._start_reader_thread()
+
+    def _disconnect_device(self) -> None:
+        if self.reader_thread is None:
+            self._set_connection_state(ConnectionState.DISCONNECTED)
+            return
+
+        self._set_connection_state(
+            ConnectionState.CONNECTING,
+            "Disconnecting...",
+        )
+        self._stop_reader_thread()
+        self._set_connection_state(ConnectionState.DISCONNECTED)
+
+    def _reset_to_defaults(self) -> None:
+        self.port_edit.setText(self.default_dev_port)
+        self.baud_edit.setText(str(self.default_baud_rate))
+        self.dev_port = self.default_dev_port
+        self.baud_rate = self.default_baud_rate
+        self._update_settings_summary()
+        self.unknown_list.addItem("[STATUS] Restored default connection settings")
+        self.unknown_list.scrollToBottom()
 
     @QtCore.Slot(str)
     def _on_new_task_a(self, message: str) -> None:
@@ -220,21 +272,33 @@ class TasksReaderInterface(QtWidgets.QWidget):
 
     @QtCore.Slot(str)
     def _on_status(self, text: str) -> None:
-        # update baud/port label with latest status message
-        self._update_status_labels(
-            f"Port: {self.dev_port}",
-            f"Baud: {self.baud_rate}",
-        )
-        # also add to unknown list as a visible status log
         self.unknown_list.addItem(f"[STATUS] {text}")
         self.unknown_list.scrollToBottom()
 
+        if text.startswith("Opening "):
+            self._set_connection_state(ConnectionState.CONNECTING, text)
+        elif text.startswith("Listening on "):
+            self._set_connection_state(ConnectionState.CONNECTED, text)
+        elif text.startswith("Serial error:"):
+            self._set_connection_state(ConnectionState.DISCONNECTED, text)
+
+    def _on_reader_finished(self) -> None:
+        self.reader_thread = None
+        if self.connection_state != ConnectionState.DISCONNECTED:
+            self._set_connection_state(ConnectionState.DISCONNECTED)
+
+    def _clear_task_a(self) -> None:
+        self.task_a_list.clear()
+
+    def _clear_task_b(self) -> None:
+        self.task_b_list.clear()
+
+    def _clear_unknown(self) -> None:
+        self.unknown_list.clear()
+
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:  # noqa: N802
-        # stop reader thread cleanly
         try:
-            if hasattr(self, "reader_thread") and self.reader_thread.isRunning():
-                self.reader_thread.stop()
-                self.reader_thread.wait(2_000)
+            self._stop_reader_thread()
         except Exception:
             logging.getLogger(__name__).exception(
                 "Failed to stop serial reader thread cleanly",
