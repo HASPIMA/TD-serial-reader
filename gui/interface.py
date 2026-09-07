@@ -90,6 +90,9 @@ class TasksReaderInterface(QtWidgets.QWidget):
         )
         self.port_edit.setCompleter(self.port_completer)
 
+        self.reload_ports_button = QtWidgets.QPushButton("Reload ports")
+        self.reload_ports_button.clicked.connect(self._reload_serial_ports)
+
         self.baud_edit = QtWidgets.QLineEdit(str(self.default_baud_rate))
         self.baud_edit.setValidator(QtGui.QIntValidator(1, 4_000_000, self))
         self.baud_edit.textChanged.connect(self._update_settings_summary)
@@ -106,6 +109,7 @@ class TasksReaderInterface(QtWidgets.QWidget):
         settings_layout.addWidget(self.baud_edit, 1, 1)
         settings_layout.addWidget(self.connect_button, 0, 2)
         settings_layout.addWidget(self.reset_button, 1, 2)
+        settings_layout.addWidget(self.reload_ports_button, 0, 3, 2, 1)
         return settings_group
 
     def _setup_message_panels(
@@ -285,6 +289,17 @@ class TasksReaderInterface(QtWidgets.QWidget):
         self.baud_rate = self.default_baud_rate
         self._update_settings_summary()
         self.unknown_list.addItem("[STATUS] Restored default connection settings")
+        self.unknown_list.scrollToBottom()
+
+    def _reload_serial_ports(self) -> None:
+        current_port = self.port_edit.currentText().strip()
+
+        ports = list_serial_ports()
+        self.port_edit.clear()
+        self.port_edit.addItems(ports)
+        self.port_edit.setCurrentText(current_port or self.default_dev_port)
+        self._update_settings_summary()
+        self.unknown_list.addItem("[STATUS] Reloaded available serial ports")
         self.unknown_list.scrollToBottom()
 
     @QtCore.Slot(str)
