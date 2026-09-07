@@ -29,8 +29,22 @@ class TasksReaderInterface(QtWidgets.QWidget):
         self.dev_port = self.default_dev_port
         self.baud_rate = self.default_baud_rate
 
-        connection_layout = QtWidgets.QHBoxLayout()
-        connection_layout.setContentsMargins(0, 0, 0, 0)
+        connection_layout = self._setup_connection_layout()
+        settings_group = self._setup_settings_group()
+        middle_layout, unknown_panel = self._setup_message_panels()
+
+        self.layout: QtWidgets.QVBoxLayout = QtWidgets.QVBoxLayout(self)
+        self.layout.addLayout(connection_layout)
+        self.layout.addWidget(settings_group)
+        self.layout.addLayout(middle_layout)
+        self.layout.addWidget(unknown_panel)
+
+        self._update_settings_summary()
+        self._set_connection_state(ConnectionState.DISCONNECTED)
+
+    def _setup_connection_layout(self) -> QtWidgets.QHBoxLayout:
+        layout = QtWidgets.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
 
         self.connection_indicator = QtWidgets.QLabel()
         self.connection_indicator.setFixedSize(14, 14)
@@ -44,11 +58,13 @@ class TasksReaderInterface(QtWidgets.QWidget):
             QtCore.Qt.AlignmentFlag.AlignRight,
         )
 
-        connection_layout.addWidget(self.connection_indicator)
-        connection_layout.addWidget(self.connection_state_label)
-        connection_layout.addStretch()
-        connection_layout.addWidget(self.connection_details_label)
+        layout.addWidget(self.connection_indicator)
+        layout.addWidget(self.connection_state_label)
+        layout.addStretch()
+        layout.addWidget(self.connection_details_label)
+        return layout
 
+    def _setup_settings_group(self) -> QtWidgets.QGroupBox:
         settings_group = QtWidgets.QGroupBox("Connection Settings")
         settings_layout = QtWidgets.QGridLayout(settings_group)
 
@@ -90,7 +106,11 @@ class TasksReaderInterface(QtWidgets.QWidget):
         settings_layout.addWidget(self.baud_edit, 1, 1)
         settings_layout.addWidget(self.connect_button, 0, 2)
         settings_layout.addWidget(self.reset_button, 1, 2)
+        return settings_group
 
+    def _setup_message_panels(
+        self,
+    ) -> tuple[QtWidgets.QHBoxLayout, QtWidgets.QGroupBox]:
         self.task_a_list, task_a_panel = self._build_message_panel(
             "Task A Messages",
             self._clear_task_a,
@@ -107,15 +127,7 @@ class TasksReaderInterface(QtWidgets.QWidget):
         middle_layout = QtWidgets.QHBoxLayout()
         middle_layout.addWidget(task_a_panel)
         middle_layout.addWidget(task_b_panel)
-
-        self.layout: QtWidgets.QVBoxLayout = QtWidgets.QVBoxLayout(self)
-        self.layout.addLayout(connection_layout)
-        self.layout.addWidget(settings_group)
-        self.layout.addLayout(middle_layout)
-        self.layout.addWidget(unknown_panel)
-
-        self._update_settings_summary()
-        self._set_connection_state(ConnectionState.DISCONNECTED)
+        return middle_layout, unknown_panel
 
     def _build_message_panel(
         self,
