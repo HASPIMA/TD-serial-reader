@@ -31,9 +31,10 @@ classified according to its tag prefix:
 
 The application can run in two modes:
 
-- CLI mode: reads serial traffic and prints matches to the terminal
-- GUI mode: displays ongoing connection state and separates Task A,
-Task B, and unknown messages in panels
+- CLI mode: reads serial traffic and prints matching messages to the
+  terminal
+- GUI mode: displays connection state, task data, and unknown traffic
+  in separate panels with controls for the serial connection
 
 ## Features
 
@@ -41,7 +42,13 @@ Task B, and unknown messages in panels
 - Filters messages using custom tags from the constants module
 - Handles invalid UTF-8 bytes gracefully using replacement decoding
 - Provides a terminal-based and desktop-based interface
-- Supports connection controls and status feedback in the GUI
+- Lists available serial ports automatically depending on the host OS
+- Suggests matching ports in the GUI with case-insensitive completion
+- Reloads the available ports list from the GUI without restarting the app
+- Lets users reset connection settings to the defaults in one click
+- Shows connection and status updates in the unknown-message panel
+- Includes per-panel clear buttons for Task A, Task B, and unknown data
+- Builds versioned release binaries for Linux and Windows using GitHub Actions
 
 ## Requirements
 
@@ -49,14 +56,22 @@ Task B, and unknown messages in panels
 - Python 3.13 or newer
 - `pyserial`
 - `PySide6`
+- `pyinstaller` (only needed if you want to build packaged release binaries)
 
 ## Installation
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
-2. Install required packages
+2. Install the project dependencies:
 
    ```bash
    uv sync
+   ```
+
+3. If you also want to build distributable binaries locally, install the
+development tooling:
+
+   ```bash
+   uv sync --all-extras --dev
    ```
 
 ## Usage
@@ -79,7 +94,7 @@ In CLI mode, each incoming line is processed as follows:
 [Task A] sample task message
 ```
 
-This is routed to `handle_task_a` with the message content
+This is routed to the Task A handler with the message content
 `sample task message`.
 
 ### GUI mode
@@ -96,11 +111,14 @@ uv run main.py -m gui -p /dev/ttyUSB0 -b 115200
 
 The GUI lets you:
 
-- enter a serial port and baud rate
-- connect or disconnect the device
-- see connection status in the header
+- choose a serial port from a pre-populated list or type it manually
+- use OS-aware serial port discovery to list candidate devices
+- reload the list of available ports at any time
+- enter a baud rate and reset it to the default values
+- connect/disconnect the device and monitor the current state
 - view Task A, Task B, and unknown messages in separate sections
 - clear each message list individually
+- see status updates such as connection attempts and port reload events
 
 ## Message format
 
@@ -117,11 +135,15 @@ as unknown and displayed as-is.
 ## Notes
 
 - The serial port is opened with a `timeout=1` so the reader loop can
-keep checking for incoming data without blocking indefinitely.
+  keep checking for incoming data without blocking indefinitely.
 - Incoming raw bytes are decoded with `errors="replace"`, which
-prevents invalid UTF-8 sequences from crashing the application.
+  prevents invalid UTF-8 sequences from crashing the application.
 - The reader strips trailing newlines and whitespace before matching
-prefixes.
+  prefixes.
+- Port discovery is OS-specific: Windows checks COM ports, Linux
+  checks `/dev/tty*`, and macOS checks `/dev/tty.*`.
+- The GUI keeps the connection state and displayed details in sync
+  with the active serial reader thread.
 
 ## Example behavior
 
@@ -137,5 +159,5 @@ the CLI prints:
 Task A received: start job
 ```
 
-When the serial input contains an unrecognized message, it is routed
-to the unknown handler instead.
+When the serial input contains an unrecognized message, it is routed to
+the unknown handler instead and shown in the unknown panel in GUI mode.
