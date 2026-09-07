@@ -292,7 +292,15 @@ class TasksReaderInterface(QtWidgets.QWidget):
         self.unknown_list.scrollToBottom()
 
     def _reload_serial_ports(self) -> None:
-        raise NotImplementedError("WIP")
+        current_port = self.port_edit.currentText().strip()
+
+        ports = list_serial_ports()
+        self.port_edit.clear()
+        self.port_edit.addItems(ports)
+        self.port_edit.setCurrentText(current_port or self.default_dev_port)
+        self._update_settings_summary()
+        self.unknown_list.addItem("[STATUS] Reloaded available serial ports")
+        self.unknown_list.scrollToBottom()
 
     @QtCore.Slot(str)
     def _on_new_task_a(self, message: str) -> None:
