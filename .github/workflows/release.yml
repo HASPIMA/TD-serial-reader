@@ -36,7 +36,7 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Compile application into a single binary
-        run: uv run pyinstaller --clean --onefile -w --name ${{ matrix.binary_name }} main.py
+        run: uv run pyinstaller --clean --onefile --noconsole --name ${{ matrix.binary_name }} main.py
 
       - name: Upload binary to GitHub release
         uses: softprops/action-gh-release@v2
