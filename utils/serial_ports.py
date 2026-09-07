@@ -38,5 +38,17 @@ def list_serial_ports() -> tuple[str, ...]:
     return tuple(result)
 
 
+# -----------
+
+
+def default_serial_port() -> str:
+    """Return the most common serial port for the current operating system."""
+    if sys.platform.startswith("win"):
+        return "COM3"
+    if sys.platform.startswith("darwin"):
+        return "/dev/cu.usbserial"
+    return "/dev/ttyUSB0"
+
+
 if __name__ == "__main__":
     print(list_serial_ports())
