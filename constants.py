@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto, unique
 
+from utils.serial_ports import default_serial_port
+
 
 @dataclass(frozen=True)
 class DeviceConfig:
-    SERIAL_PORT: str = "/dev/ttyUSB0"
+    SERIAL_PORT: str = default_serial_port()
     """Serial device port (eg: /dev/ttyUSB0, COM3)"""
 
     BAUD_RATE: int = 115200
