@@ -17,8 +17,10 @@ jobs:
         include:
           - os: ubuntu-latest
             binary_name: task-serial-reader-linux
+            binary_ext: "-ubuntu"
           - os: windows-latest
-            binary_name: task-serial-reader-windows.exe
+            binary_name: task-serial-reader-windows
+            binary_ext: ".exe"
 
     steps:
       - name: Check out repository
@@ -36,9 +38,9 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Compile application into a single binary
-        run: uv run pyinstaller --clean --onefile --noconsole --name ${{ matrix.binary_name }} main.py
+        run: uv run pyinstaller --clean --onefile --noconsole --name "${{ matrix.binary_name }}-${{ github.event.release.tag_name }}${{ matrix.binary_ext }}" main.py
 
       - name: Upload binary to GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/${{ matrix.binary_name }}
+          files: dist/${{ matrix.binary_name }}-${{ github.event.release.tag_name }}${{ matrix.binary_ext }}
