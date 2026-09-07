@@ -8,14 +8,14 @@ import sys
 import serial
 
 
-def list_serial_ports():
+def list_serial_ports() -> tuple[str, ...]:
     """
     Lists serial port names.
 
     :raises EnvironmentError:
         On unsupported or unknown platforms
     :returns:
-        A list of the serial ports available on the system
+        A tuple of the serial ports available on the system
     """
     if sys.platform.startswith("win"):
         ports = ["COM%s" % (i + 1) for i in range(256)]
@@ -27,7 +27,7 @@ def list_serial_ports():
     else:
         raise EnvironmentError("Unsupported platform")  # noqa: UP024
 
-    result = []
+    result: list[str] = []
     for port in ports:
         try:
             s = serial.Serial(port)
@@ -35,7 +35,7 @@ def list_serial_ports():
             result.append(port)
         except (OSError, serial.SerialException):
             pass
-    return result
+    return tuple(result)
 
 
 if __name__ == "__main__":
