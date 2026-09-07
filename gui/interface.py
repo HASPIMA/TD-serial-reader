@@ -6,6 +6,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 from constants import ConnectionState
 from gui.reader import SerialReaderThread
+from utils.serial_ports import list_serial_ports
 
 
 class TasksReaderInterface(QtWidgets.QWidget):
@@ -28,8 +29,22 @@ class TasksReaderInterface(QtWidgets.QWidget):
         self.dev_port = self.default_dev_port
         self.baud_rate = self.default_baud_rate
 
-        connection_layout = QtWidgets.QHBoxLayout()
-        connection_layout.setContentsMargins(0, 0, 0, 0)
+        connection_layout = self._setup_connection_layout()
+        settings_group = self._setup_settings_group()
+        middle_layout, unknown_panel = self._setup_message_panels()
+
+        self.layout: QtWidgets.QVBoxLayout = QtWidgets.QVBoxLayout(self)
+        self.layout.addLayout(connection_layout)
+        self.layout.addWidget(settings_group)
+        self.layout.addLayout(middle_layout)
+        self.layout.addWidget(unknown_panel)
+
+        self._update_settings_summary()
+        self._set_connection_state(ConnectionState.DISCONNECTED)
+
+    def _setup_connection_layout(self) -> QtWidgets.QHBoxLayout:
+        layout = QtWidgets.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
 
         self.connection_indicator = QtWidgets.QLabel()
         self.connection_indicator.setFixedSize(14, 14)
@@ -43,16 +58,37 @@ class TasksReaderInterface(QtWidgets.QWidget):
             QtCore.Qt.AlignmentFlag.AlignRight,
         )
 
-        connection_layout.addWidget(self.connection_indicator)
-        connection_layout.addWidget(self.connection_state_label)
-        connection_layout.addStretch()
-        connection_layout.addWidget(self.connection_details_label)
+        layout.addWidget(self.connection_indicator)
+        layout.addWidget(self.connection_state_label)
+        layout.addStretch()
+        layout.addWidget(self.connection_details_label)
+        return layout
 
+    def _setup_settings_group(self) -> QtWidgets.QGroupBox:
         settings_group = QtWidgets.QGroupBox("Connection Settings")
         settings_layout = QtWidgets.QGridLayout(settings_group)
 
-        self.port_edit = QtWidgets.QLineEdit(self.default_dev_port)
-        self.port_edit.textChanged.connect(self._update_settings_summary)
+        self.port_edit = QtWidgets.QComboBox()
+        self.port_edit.setEditable(True)
+        self.port_edit.setInsertPolicy(
+            QtWidgets.QComboBox.InsertPolicy.NoInsert,
+        )
+        self.port_edit.addItems(list_serial_ports())
+        self.port_edit.setCurrentText(self.default_dev_port)
+        self.port_edit.editTextChanged.connect(self._update_settings_summary)
+
+        # Allow users to filter by available ports while typing
+        self.port_completer = QtWidgets.QCompleter(self.port_edit.model(), self)
+        self.port_completer.setCaseSensitivity(
+            QtCore.Qt.CaseSensitivity.CaseInsensitive,
+        )
+        self.port_completer.setFilterMode(
+            QtCore.Qt.MatchFlag.MatchContains,
+        )
+        self.port_completer.setCompletionMode(
+            QtWidgets.QCompleter.CompletionMode.PopupCompletion,
+        )
+        self.port_edit.setCompleter(self.port_completer)
 
         self.baud_edit = QtWidgets.QLineEdit(str(self.default_baud_rate))
         self.baud_edit.setValidator(QtGui.QIntValidator(1, 4_000_000, self))
@@ -70,7 +106,11 @@ class TasksReaderInterface(QtWidgets.QWidget):
         settings_layout.addWidget(self.baud_edit, 1, 1)
         settings_layout.addWidget(self.connect_button, 0, 2)
         settings_layout.addWidget(self.reset_button, 1, 2)
+        return settings_group
 
+    def _setup_message_panels(
+        self,
+    ) -> tuple[QtWidgets.QHBoxLayout, QtWidgets.QGroupBox]:
         self.task_a_list, task_a_panel = self._build_message_panel(
             "Task A Messages",
             self._clear_task_a,
@@ -87,15 +127,7 @@ class TasksReaderInterface(QtWidgets.QWidget):
         middle_layout = QtWidgets.QHBoxLayout()
         middle_layout.addWidget(task_a_panel)
         middle_layout.addWidget(task_b_panel)
-
-        self.layout: QtWidgets.QVBoxLayout = QtWidgets.QVBoxLayout(self)
-        self.layout.addLayout(connection_layout)
-        self.layout.addWidget(settings_group)
-        self.layout.addLayout(middle_layout)
-        self.layout.addWidget(unknown_panel)
-
-        self._update_settings_summary()
-        self._set_connection_state(ConnectionState.DISCONNECTED)
+        return middle_layout, unknown_panel
 
     def _build_message_panel(
         self,
@@ -124,7 +156,7 @@ class TasksReaderInterface(QtWidgets.QWidget):
 
     def _update_settings_summary(self, *_args: object) -> None:
         self.connection_details_label.setText(
-            f"Configured: {self.port_edit.text().strip() or '—'} @ "
+            f"Configured: {self.port_edit.currentText().strip() or '—'} @ "
             f"{self.baud_edit.text().strip() or '—'}",
         )
 
@@ -164,7 +196,7 @@ class TasksReaderInterface(QtWidgets.QWidget):
             self._update_settings_summary()
 
     def _read_connection_settings(self) -> tuple[str, int] | None:
-        port = self.port_edit.text().strip()
+        port = self.port_edit.currentText().strip()
         baud_text = self.baud_edit.text().strip()
 
         if not port:
@@ -247,7 +279,7 @@ class TasksReaderInterface(QtWidgets.QWidget):
         self._set_connection_state(ConnectionState.DISCONNECTED)
 
     def _reset_to_defaults(self) -> None:
-        self.port_edit.setText(self.default_dev_port)
+        self.port_edit.setCurrentText(self.default_dev_port)
         self.baud_edit.setText(str(self.default_baud_rate))
         self.dev_port = self.default_dev_port
         self.baud_rate = self.default_baud_rate
