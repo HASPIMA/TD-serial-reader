@@ -74,12 +74,24 @@ The application can run in two modes:
 > This is completely optional and you may not need to build binaries
 > if you just want to run the application from source.
 
-1. If you also want to build distributable binaries locally, install the
-development tooling:
+1. Install the development tooling, including `pyinstaller`:
 
    ```bash
    uv sync --all-extras --dev
    ```
+
+2. Build the executable with PyInstaller:
+
+   ```bash
+   uv run pyinstaller --clean --onefile --noconsole --name task-serial-reader main.py
+   ```
+
+    The binary will be created in the `dist/` directory. On Linux and
+    Windows, this produces a standalone executable you can distribute or
+    run locally.
+
+3. If you want a console window for CLI mode output, remove
+  `--noconsole` from the PyInstaller command.
 
 ## Usage
 
