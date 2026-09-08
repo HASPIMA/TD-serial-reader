@@ -87,8 +87,8 @@ The application can run in two modes:
    ```
 
     The binary will be created in the `dist/` directory. On Linux and
-    Windows, this produces a standalone executable you can distribute or
-    run locally.
+    Windows, this produces a standalone executable you can distribute
+    or run locally.
 
 3. If you want a console window for CLI mode output, remove
   `--noconsole` from the PyInstaller command.
