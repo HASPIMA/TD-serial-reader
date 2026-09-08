@@ -12,6 +12,7 @@ CLI handler or a GUI dashboard.
   - [Features](#features)
   - [Requirements](#requirements)
   - [Installation](#installation)
+    - [Building binaries locally](#building-binaries-locally)
   - [Usage](#usage)
     - [CLI mode](#cli-mode)
     - [GUI mode](#gui-mode)
@@ -67,7 +68,13 @@ The application can run in two modes:
    uv sync
    ```
 
-3. If you also want to build distributable binaries locally, install the
+### Building binaries locally
+
+> [!NOTE]
+> This is completely optional and you may not need to build binaries
+> if you just want to run the application from source.
+
+1. If you also want to build distributable binaries locally, install the
 development tooling:
 
    ```bash
