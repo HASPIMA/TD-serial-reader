@@ -12,6 +12,8 @@ CLI handler or a GUI dashboard.
   - [Features](#features)
   - [Requirements](#requirements)
   - [Installation](#installation)
+    - [Building binaries locally](#building-binaries-locally)
+  - [GitHub workflows](#github-workflows)
   - [Usage](#usage)
     - [CLI mode](#cli-mode)
     - [GUI mode](#gui-mode)
@@ -67,12 +69,48 @@ The application can run in two modes:
    uv sync
    ```
 
-3. If you also want to build distributable binaries locally, install the
-development tooling:
+### Building binaries locally
+
+> [!NOTE]
+> This is completely optional and you may not need to build binaries
+> if you just want to run the application from source.
+
+1. Install the development tooling, including `pyinstaller`:
 
    ```bash
    uv sync --all-extras --dev
    ```
+
+2. Build the executable with PyInstaller:
+
+   ```bash
+   uv run pyinstaller --clean --onefile --noconsole --name task-serial-reader main.py
+   ```
+
+    The binary will be created in the `dist/` directory. On Linux and
+    Windows, this produces a standalone executable you can distribute
+    or run locally.
+
+3. If you want a console window for CLI mode output, remove
+  `--noconsole` from the PyInstaller command.
+
+## GitHub workflows
+
+This project includes two GitHub Actions workflows to help keep the
+repository healthy and the release process automated:
+
+- [`ruff.yml`](./.github/workflows/ruff.yml): runs on every push and
+  pull request. It executes Ruff to check for linting issues early
+  and prevent style or quality regressions.
+- [`release.yml`](./.github/workflows/release.yml): runs when a GitHub
+  release is published. It builds a Linux and Windows binary using
+  `uv` and PyInstaller, then uploads the generated artifact to the
+  release. More information about the building command can be found in
+  the section to [build binaries locally](#building-binaries-locally).
+
+These workflows make it easier to validate changes before merging while
+also producing versioned binaries for distribution without manual build
+steps.
 
 ## Usage
 
