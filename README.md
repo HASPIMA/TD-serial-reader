@@ -4,6 +4,11 @@ A small Python application for reading serial data from a device,
 identifying task messages by prefix, and dispatching them to either a
 CLI handler or a GUI dashboard.
 
+> [!TIP]
+> If you only want to use the app, you can just download it in the
+> release section of this repository. A better explanation
+> [is found here](#releases)
+
 ## Table of contents
 
 - [Task Serial Reader](#task-serial-reader)
