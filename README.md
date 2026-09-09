@@ -10,6 +10,7 @@ CLI handler or a GUI dashboard.
   - [Table of contents](#table-of-contents)
   - [Overview](#overview)
   - [Features](#features)
+  - [Releases](#releases)
   - [Requirements](#requirements)
   - [Installation](#installation)
     - [Building binaries locally](#building-binaries-locally)
@@ -51,6 +52,16 @@ The application can run in two modes:
 - Shows connection and status updates in the unknown-message panel
 - Includes per-panel clear buttons for Task A, Task B, and unknown data
 - Builds versioned release binaries for Linux and Windows using GitHub Actions
+
+## Releases
+
+You can find bundled binaries for either linux or windows under the
+[releases section](https://github.com/HASPIMA/TD-serial-reader/releases).
+
+If you only want to download the latest generated artifact(s), you can
+refer to the
+[latest relase](https://github.com/HASPIMA/TD-serial-reader/releases/latest)
+page.
 
 ## Requirements
 
